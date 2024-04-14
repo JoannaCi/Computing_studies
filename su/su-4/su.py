@@ -4,6 +4,8 @@ from sklearn import linear_model, neighbors, tree, neural_network, svm
 from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error, r2_score
 from sklearn.pipeline import make_pipeline
+from sklearn.tree import plot_tree
+
 
 
 dane = np.genfromtxt("147963-regression.txt", skip_header=1)
@@ -157,17 +159,30 @@ y_axis = dane[:, -1]
 
 # calculate_and_plot(regresors, x_axis, y_axis)
 
-# Fitting a linear regression model
-regresor = linear_model.LinearRegression()
-regresor.fit(x_axis, y_axis)
-y_pred = regresor.predict(x_axis)
+# # Fitting a linear regression model
+# regresor = linear_model.LinearRegression()
+# regresor.fit(x_axis, y_axis)
+# y_pred = regresor.predict(x_axis)
 
-# Graph of actual values vs. predicted values by linear model
-plt.figure(figsize=(8, 6))
-plt.scatter(y_axis, y_pred)
-plt.plot([min(y_axis), max(y_axis)], [min(y_axis), max(y_axis)], linestyle='--', color='red')  # linia idealnej zgodności
-plt.xlabel('Actual Values')
-plt.ylabel('Predicted Values')
-plt.title('Actual vs. Predicted Values for Linear Regression')
-plt.grid(True)
+# # Graph of actual values vs. predicted values by linear model
+# plt.figure(figsize=(8, 6))
+# plt.scatter(y_axis, y_pred)
+# plt.plot([min(y_axis), max(y_axis)], [min(y_axis), max(y_axis)], linestyle='--', color='red')  # linia idealnej zgodności
+# plt.xlabel('Actual Values')
+# plt.ylabel('Predicted Values')
+# plt.title('Actual vs. Predicted Values for Linear Regression')
+# plt.grid(True)
+# plt.show()
+
+# Creating a decision tree model with limited depth
+model = tree.DecisionTreeRegressor(max_depth=3)
+model.fit(x_axis, y_axis)
+
+# Collection of feature indexes
+feature_indices = [i for i in range(x_axis.shape[1])]
+
+# Decision tree visualisation using feature indices
+plt.figure(figsize=(12, 8))
+plot_tree(model, feature_names=feature_indices, filled=True, rounded=True)
+plt.title('Decision Tree Regression', fontsize =14)
 plt.show()
