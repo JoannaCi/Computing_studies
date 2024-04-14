@@ -2,9 +2,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import linear_model, neighbors, tree, neural_network, svm
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_absolute_error, r2_score
+from sklearn.metrics import mean_absolute_error, r2_score, make_scorer
 from sklearn.pipeline import make_pipeline
 from sklearn.tree import plot_tree
+from sklearn.model_selection import cross_val_score
+
 
 
 
@@ -68,15 +70,15 @@ y_axis = dane[:, -1]
 # print("Number of attribute pairs with high correlation:", num_high_corr_pairs)
 # print("Number of attribute pairs with low correlation:", num_low_corr_pairs)
 
-# # Definition of regresors
-# regresors = {
-#     "Linear Regression": linear_model.LinearRegression(),
-#     "KNeighborsRegressor": neighbors.KNeighborsRegressor(),
-#     "DecisionTreeRegressor": tree.DecisionTreeRegressor(max_depth=2),
-#     "MLPRegressor": neural_network.MLPRegressor(),
-#     "SVR Linear Kernel": svm.SVR(kernel='linear'),
-#     "SVR RBF Kernel": svm.SVR(kernel='rbf')
-# }
+# Definition of regresors
+regresors = {
+    "Linear Regression": linear_model.LinearRegression(),
+    "KNeighborsRegressor": neighbors.KNeighborsRegressor(),
+    "DecisionTreeRegressor": tree.DecisionTreeRegressor(max_depth=2),
+    "MLPRegressor": neural_network.MLPRegressor(),
+    "SVR Linear Kernel": svm.SVR(kernel='linear'),
+    "SVR RBF Kernel": svm.SVR(kernel='rbf')
+}
 
 # # Function to calculate the difference between the values of the metrics before and after standardisation
 # def calculate_difference(metric, before, after):
@@ -175,14 +177,58 @@ y_axis = dane[:, -1]
 # plt.show()
 
 # Creating a decision tree model with limited depth
-model = tree.DecisionTreeRegressor(max_depth=3)
-model.fit(x_axis, y_axis)
+# model = tree.DecisionTreeRegressor(max_depth=3)
+# model.fit(x_axis, y_axis)
 
-# Collection of feature indexes
-feature_indices = [i for i in range(x_axis.shape[1])]
+# # Collection of feature indexes
+# feature_indices = [i for i in range(x_axis.shape[1])]
 
-# Decision tree visualisation using feature indices
-plt.figure(figsize=(12, 8))
-plot_tree(model, feature_names=feature_indices, filled=True, rounded=True)
-plt.title('Decision Tree Regression', fontsize =14)
-plt.show()
+# # Decision tree visualisation using feature indices
+# plt.figure(figsize=(12, 8))
+# plot_tree(model, feature_names=feature_indices, filled=True, rounded=True)
+# plt.title('Decision Tree Regression', fontsize =14)
+# plt.show()
+
+
+# Lista metryk do oceny
+# metrics = {
+#     "M1": mean_absolute_error,
+#     "M2": r2_score
+# }
+
+# # Ocena modeli za pomocą 10-krotnej kroswalidacji
+# results = {}
+# for model_name, model in regresors.items():
+#     model_results = {}
+#     for metric_name, metric_func in metrics.items():
+#         scores = cross_val_score(model, x_axis, y_axis, cv=10, scoring=make_scorer(metric_func))
+#         model_results[metric_name] = np.mean(scores)
+#         model_results[metric_name + ' (CV)'] = scores  # Zapisujemy wyniki kroswalidacji
+#     results[model_name] = model_results
+
+# # Wykresy porównujące wyniki dla całego zbioru danych i średnie wyniki z kroswalidacji
+# plt.figure(figsize=(12, 6))
+
+# # Kolorowe palety dla danych i kroswalidacji
+# colors_dataset = ['lightblue', 'lightgreen']
+# colors_cv = ['blue', 'green']
+
+# for i, metric_name in enumerate(metrics.keys(), start=1):
+#     plt.subplot(1, 2, i)
+#     index = np.arange(len(results))
+#     for j, (model_name, model_result) in enumerate(results.items()):
+#         dataset_score = model_result[metric_name]
+#         cv_scores = model_result[metric_name + ' (CV)']
+#         plt.bar(index[j], dataset_score, color=colors_dataset[i-1], label=model_name)
+#         plt.errorbar(index[j], np.mean(cv_scores), yerr=np.std(cv_scores), fmt='o', color=colors_cv[i-1], label=model_name + ' (CV)')
+#     plt.xlabel('Model')
+#     plt.ylabel(metric_name)
+#     plt.title('Comparison of {} for whole dataset vs. Cross-validated'.format(metric_name))
+#     plt.xticks(index, results.keys(), rotation=45)
+#     if metric_name == "M1":
+#         plt.legend(loc='upper left', prop={'size': 6})  # Zmniejszenie rozmiaru legendy dla M1
+#     elif metric_name == "M2":
+#         plt.legend(loc='lower right', prop={'size': 6})  # Zmniejszenie rozmiaru legendy dla M2
+
+# plt.tight_layout()
+# plt.show()
